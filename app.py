@@ -8,7 +8,7 @@ import time
 from dotenv import load_dotenv  
 import os  
 
-# Load environment variables from .env file
+# Load environment variables from .env file (for local development)
 load_dotenv()
 
 # --- Configuration ---
@@ -20,12 +20,17 @@ except st.errors.StreamlitAPIException as e:
     else:
         raise e
 
-# Load API key from environment variable
-API_KEY = os.getenv("OPENAI_API_KEY")
+# Load API key - prioritize Streamlit secrets, fallback to environment variable
+try:
+    # For Streamlit Cloud deployment
+    API_KEY = st.secrets["OPENAI_API_KEY"]
+except (KeyError, FileNotFoundError):
+    # For local development
+    API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Validate API key
 if not API_KEY:
-    st.error("⚠️ API Key not found! Please check your .env file.")
+    st.error("⚠️ API Key not found! Please add OPENAI_API_KEY to Streamlit secrets or your .env file.")
     st.stop()
 
 # OpenAI Configuration
@@ -256,5 +261,6 @@ with tab_chatbot:
             
             # Add assistant response to history
             st.session_state.messages.append({"role": "assistant", "content": response_text})
+
 
 # --- End of Streamlit App ---
