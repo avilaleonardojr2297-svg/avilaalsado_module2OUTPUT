@@ -11,27 +11,37 @@ import os
 # Load environment variables from .env file
 load_dotenv()
 
-   # Try to get API key from Streamlit secrets first, then fall back to environment
-   if "OPENAI_API_KEY" in st.secrets:
-       openai_api_key = st.secrets["OPENAI_API_KEY"]
-   else:
-       openai_api_key = os.getenv("OPENAI_API_KEY")
+# --- Configuration ---
+try:
+    st.set_page_config(layout="wide", page_title="Avalanche Product Team Dashboard")
+except st.errors.StreamlitAPIException as e:
+    if "must be called as the first Streamlit command" in str(e):
+        pass
+    else:
+        raise e
 
-# Load API key from environment variable
-API_KEY = os.getenv("OPENAI_API_KEY")
+# Load API key - prioritize Streamlit secrets, fallback to environment variable
+API_KEY = None
+
+try:
+    # For Streamlit Cloud deployment
+    if "OPENAI_API_KEY" in st.secrets:
+        API_KEY = st.secrets["OPENAI_API_KEY"]
+except (KeyError, FileNotFoundError, AttributeError):
+    pass
+
+# Fallback to environment variable for local development
+if not API_KEY:
+    API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Validate API key
 if not API_KEY:
-    st.error("⚠️ API Key not found! Please check your .env file.")
+    st.error("⚠️ API Key not found! Please add OPENAI_API_KEY to Streamlit secrets or your .env file.")
     st.stop()
 
-# Load API key from environment variable
-API_KEY = os.getenv("OPENAI_API_KEY")
-
-# Validate API key
-if not API_KEY:
-    st.error("⚠️ API Key not found! Please check your .env file.")
-    st.stop()
+# OpenAI Configuration
+MODEL_NAME = "gpt-4o-mini"
+API_URL = "https://api.openai.com/v1/chat/completions"
 
 # OpenAI Configuration
 MODEL_NAME = "gpt-4o-mini"  # or "gpt-4o", "gpt-3.5-turbo"
@@ -264,6 +274,7 @@ with tab_chatbot:
 
 
 # --- End of Streamlit App ---
+
 
 
 
