@@ -11,14 +11,23 @@ import os
 # Load environment variables from .env file
 load_dotenv()
 
-# --- Configuration ---
+# Load API key - prioritize Streamlit secrets, fallback to environment variable
+API_KEY = None
+key_source = "unknown"
+
 try:
-    st.set_page_config(layout="wide", page_title="Avalanche Product Team Dashboard")
-except st.errors.StreamlitAPIException as e:
-    if "must be called as the first Streamlit command" in str(e):
-        pass
-    else:
-        raise e
+    # For Streamlit Cloud deployment
+    if "OPENAI_API_KEY" in st.secrets:
+        API_KEY = st.secrets["OPENAI_API_KEY"]
+        key_source = "Streamlit Secrets"
+except (KeyError, FileNotFoundError, AttributeError):
+    pass
+
+# Fallback to environment variable for local development
+if not API_KEY:
+    API_KEY = os.getenv("OPENAI_API_KEY")
+    if API_KEY:
+        key_source = ".env file"
 
 # Load API key from environment variable
 API_KEY = os.getenv("OPENAI_API_KEY")
@@ -259,5 +268,6 @@ with tab_chatbot:
 
 
 # --- End of Streamlit App ---
+
 
 
