@@ -20,44 +20,17 @@ except st.errors.StreamlitAPIException as e:
     else:
         raise e
 
-# Load API key - prioritize Streamlit secrets, fallback to environment variable
-API_KEY = None
-key_source = "Not found"
-
-try:
-    # For Streamlit Cloud deployment
-    if "OPENAI_API_KEY" in st.secrets:
-        API_KEY = st.secrets["OPENAI_API_KEY"]
-        key_source = "Streamlit Secrets"
-except Exception as e:
-    pass
-
-# Fallback to environment variable for local development
-if not API_KEY:
-    API_KEY = os.getenv("OPENAI_API_KEY")
-    if API_KEY:
-        key_source = ".env file"
+# Load API key from environment variable
+API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Validate API key
 if not API_KEY:
-    st.error("⚠️ API Key not found! Please add OPENAI_API_KEY to Streamlit secrets.")
-    st.info("📝 In Streamlit Cloud: Go to app settings → Secrets → Add your key")
+    st.error("⚠️ API Key not found! Please check your .env file.")
     st.stop()
 
 # OpenAI Configuration
-MODEL_NAME = "gpt-4o-mini"
+MODEL_NAME = "gpt-4o-mini"  # or "gpt-4o", "gpt-3.5-turbo"
 API_URL = "https://api.openai.com/v1/chat/completions"
-
-# DEBUG INFO - Add this section
-st.sidebar.markdown("---")
-st.sidebar.markdown("### 🔍 Debug Info")
-st.sidebar.info(f"**Key Source:** {key_source}")
-if API_KEY:
-    st.sidebar.info(f"**Key starts with:** {API_KEY[:10]}...")
-    st.sidebar.info(f"**Key length:** {len(API_KEY)} chars")
-    st.sidebar.info(f"**Valid format:** {'✅ Yes' if API_KEY.startswith('sk-') else '❌ No - should start with sk-'}")
-else:
-    st.sidebar.error("No API key found!")
 
 # --- Data Loading and Mocks (Step 1 & 2) ---
 
@@ -284,11 +257,4 @@ with tab_chatbot:
             # Add assistant response to history
             st.session_state.messages.append({"role": "assistant", "content": response_text})
 
-
 # --- End of Streamlit App ---
-
-
-
-
-
-
