@@ -48,6 +48,17 @@ if not API_KEY:
 MODEL_NAME = "gpt-4o-mini"
 API_URL = "https://api.openai.com/v1/chat/completions"
 
+# DEBUG INFO - Add this section
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 🔍 Debug Info")
+st.sidebar.info(f"**Key Source:** {key_source}")
+if API_KEY:
+    st.sidebar.info(f"**Key starts with:** {API_KEY[:10]}...")
+    st.sidebar.info(f"**Key length:** {len(API_KEY)} chars")
+    st.sidebar.info(f"**Valid format:** {'✅ Yes' if API_KEY.startswith('sk-') else '❌ No - should start with sk-'}")
+else:
+    st.sidebar.error("No API key found!")
+
 # --- Data Loading and Mocks (Step 1 & 2) ---
 
 @st.cache_data
@@ -275,6 +286,7 @@ with tab_chatbot:
 
 
 # --- End of Streamlit App ---
+
 
 
 
