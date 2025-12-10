@@ -11,23 +11,19 @@ import os
 # Load environment variables from .env file
 load_dotenv()
 
-# Load API key - prioritize Streamlit secrets, fallback to environment variable
-API_KEY = None
-key_source = "unknown"
+   # Try to get API key from Streamlit secrets first, then fall back to environment
+   if "OPENAI_API_KEY" in st.secrets:
+       openai_api_key = st.secrets["OPENAI_API_KEY"]
+   else:
+       openai_api_key = os.getenv("OPENAI_API_KEY")
 
-try:
-    # For Streamlit Cloud deployment
-    if "OPENAI_API_KEY" in st.secrets:
-        API_KEY = st.secrets["OPENAI_API_KEY"]
-        key_source = "Streamlit Secrets"
-except (KeyError, FileNotFoundError, AttributeError):
-    pass
+# Load API key from environment variable
+API_KEY = os.getenv("OPENAI_API_KEY")
 
-# Fallback to environment variable for local development
+# Validate API key
 if not API_KEY:
-    API_KEY = os.getenv("OPENAI_API_KEY")
-    if API_KEY:
-        key_source = ".env file"
+    st.error("⚠️ API Key not found! Please check your .env file.")
+    st.stop()
 
 # Load API key from environment variable
 API_KEY = os.getenv("OPENAI_API_KEY")
