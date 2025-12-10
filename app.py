@@ -20,8 +20,13 @@ except st.errors.StreamlitAPIException as e:
     else:
         raise e
 
-# Load API key from environment variable
-API_KEY = os.getenv("OPENAI_API_KEY")
+# Load API key from Streamlit secrets (for cloud) or environment (for local)
+try:
+    API_KEY = st.secrets["OPENAI_API_KEY"]
+except (KeyError, FileNotFoundError):
+    # Fallback to environment variable for local development
+    load_dotenv()
+    API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Validate API key
 if not API_KEY:
@@ -258,3 +263,4 @@ with tab_chatbot:
             st.session_state.messages.append({"role": "assistant", "content": response_text})
 
 # --- End of Streamlit App ---
+
